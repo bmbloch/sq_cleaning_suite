@@ -1,0 +1,10 @@
+/* This file  helps avoid a problem with columns being cut off when adding a vertical scroll bar. Example is the met rollup table */
+/* Commented out for now - better way to control is below */
+/* .dash-spreadsheet-inner.dash-spreadsheet.dash-empty-01.dash-no-filter.dash-fill-width {
+    padding: 0px 0px 0px 0px;
+} */
+
+.dash-table-container .row {
+    display: block;
+    margin: 0;
+    }
