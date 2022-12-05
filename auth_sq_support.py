@@ -12,6 +12,7 @@ users = {
             'dcaputo': {'password': "test4", 'sectors': ["ret"]},
             'dquan': {'password': "test5", 'sectors': ["apt", "ind", "off", "ret"]},
             'mpellegrini': {'password': "test6", 'sectors': ["ind"]},
+            'nluettke': {'password': "test7", 'sectors': ["off"]}
         }
 
 # Function that returns True if the user and password input is a correct match, otherwise False
