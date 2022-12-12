@@ -106,7 +106,7 @@ def outlier_r_level_flags(sector_val, curryr, currmon, msq_data_in, past_msq_dat
 
     msq_data_filt = msq_data.copy()
     msq_data_filt = msq_data_filt.rename(columns={'uniq1': 'identity'})
-    msq_data_filt = msq_data_filt[['identity', 'msq_id', 'found_id', 'metcode', 'subid', 'yearx', 'rnt_term', 'renx', 'renxM', 'termx', 'termxM', 'renx_avg', 'per20', 'per65', 'per80', 'per90', 'nc_new_tag', 'l_mon_diff', 'l_renx', 'min_max', 'low_g', 'sq_aggress', 'nc', 'termx_flag']]
+    msq_data_filt = msq_data_filt[['identity', 'msq_id', 'found_id', 'metcode', 'subid', 'yearx', 'rnt_term', 'renx', 'renxM', 'termx', 'termxM', 'chg_monthized', 'renx_avg', 'per20', 'per65', 'per80', 'per90', 'nc_new_tag', 'l_mon_diff', 'l_renx', 'min_max', 'low_g', 'sq_aggress', 'nc', 'termx_flag']]
     msq_data_filt = msq_data_filt[(msq_data_filt['min_max'] == 1) | (msq_data_filt['low_g'] == 1) | (msq_data_filt['sq_aggress'] == 1) | (msq_data_filt['nc'] == 1) | (msq_data_filt['termx_flag'] == 1)]
 
     msq_data_filt = msq_data_filt.rename(columns={'min_max': 'r_flag_min_max', 'low_g': 'r_flag_low_g', 'sq_aggress': 'r_flag_sq_aggress', 'nc': 'r_flag_nc'})
