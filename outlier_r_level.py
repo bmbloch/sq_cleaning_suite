@@ -96,7 +96,7 @@ def outlier_r_level_flags(sector_val, curryr, currmon, msq_data_in, past_msq_dat
     msq_data['low_g'] = np.where((msq_data['chg_monthized'] < 0.001) & (msq_data['renxM'] == 1) & (msq_data['l_mon_diff'] > 24) & (msq_data['l_survdate'] > '01/01/2010') & (msq_data['l_renx'].isnull() == False)
                                         & (msq_data['renx'] < msq_data['renx_avg']) & (msq_data['renx_avg'].isnull() == False), 1, 0)
 
-    msq_data['sq_aggress'] = np.where((abs(msq_data['chg_monthized']) > 0.005) & (msq_data['renxM'] == 1) & (msq_data['chg_monthized'].isnull() == False) & (msq_data['l_mon_diff'] <= 24) & (msq_data['l_renx'].isnull() == False), 1, 0)
+    msq_data['sq_aggress'] = np.where(((msq_data['chg_monthized'] < -0.003) | (msq_data['chg_monthized'] > 0.01)) & (msq_data['renxM'] == 1) & (msq_data['chg_monthized'].isnull() == False) & (msq_data['l_mon_diff'] <= 24) & (msq_data['l_renx'].isnull() == False), 1, 0)
 
     msq_data['nc'] = np.where(((msq_data['yearx'] == curryr) | ((msq_data['yearx'] == curryr - 1) & (msq_data['currmon'] > currmon))) & (msq_data['renx'] < msq_data['per65']) & (msq_data['l_renx'].isnull() == True) & (msq_data['mr_rent'].isnull() == True), 1, 0)
     msq_data['nc'] = np.where((msq_data['nc_new_tag'] == 1) & (msq_data['renx'] < msq_data['per65']) & (msq_data['l_renx'].isnull() == True) & (msq_data['mr_rent'].isnull() == True), 1, msq_data['nc'])
