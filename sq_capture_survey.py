@@ -16,7 +16,7 @@ import re
 pd.set_option('display.max_rows',  1000)
 pd.set_option('display.max_columns', 100)
 pd.options.display.float_format = '{:.3f}'.format
-from IPython.core.display import display, HTML
+from IPython.display import display, HTML
 
 def sq_capture_survey_flags(sector_val, curryr, currmon, msq_data_in):
 
