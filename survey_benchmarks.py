@@ -72,6 +72,9 @@ def process_survey_benchmarks(sector_val, curryr, currmon):
     data = data[(data['subid'] != 77) | (data['metcode'].isin(rent_comps_only_list))]
     data = data[data['submkt'].str.strip().str[0:2] != '99']
 
+    data['avg_op_exp'] = data.groupby('id')['op_exp'].transform('mean')
+    data['rnt_term'] = np.where((data['avg_op_exp'] / data['renx'] > 0.4) & (data['rnt_term'].isnull() == False), 'N', data['rnt_term'])
+    
     data['curr_tag'] = np.where((data['reisyr'] == curryr) & (data['reismon'] == currmon), 1, 0)
 
     data['reisqtr'] = np.ceil(data['reismon'] / 3)
