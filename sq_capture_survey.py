@@ -119,6 +119,9 @@ def sq_capture_survey_flags(sector_val, curryr, currmon, msq_data_in):
     data_msq, flag_cols = test_surv(data_msq, 's_sublet', 'sublet', 'subletxM', flag_cols, "v_flag_")
     data_msq, flag_cols = test_surv(data_msq, 's_rnt_term', 'rnt_term', False, flag_cols, "r_flag_")
 
+    # Calculate the average surveyed opex for each property
+    data_msq['avg_s_opex'] = data_msq.groupby('id')['s_opex'].transform('mean')
+
     # Calculate the surveyed opex to gross rent ratio
     data_msq['o_r_ratio'] = np.where((np.isnan(data_msq['s_avrent']) == False) & (np.isnan(data_msq['s_opex']) == False), data_msq['s_avrent'] / (data_msq['s_opex'] + data_msq['s_avrent']), np.nan)
 
@@ -172,7 +175,8 @@ def sq_capture_survey_flags(sector_val, curryr, currmon, msq_data_in):
 
     data_msq['r_flag_s_rnt_term'] = np.where((data_msq['r_flag_s_rnt_term'] == 1) & (data_msq['rnt_term'].isnull() == False) & (data_msq['same_mon_rnt_term_tag_first'].isnull() == False) & ((data_msq['same_mon_rnt_term_tag_first'] == data_msq['rnt_term']) | (data_msq['same_mon_rnt_term_tag_second'] == data_msq['rnt_term'])), 0, data_msq['r_flag_s_rnt_term'])
     data_msq['r_flag_s_rnt_term'] = np.where((data_msq['rnt_term'] == 'N') & (data_msq['s_rnt_term'] == 'G') & (data_msq['s_opex'] / data_msq['s_avrent'] > 0.6), 0, data_msq['r_flag_s_rnt_term'])
-
+    data_msq['r_flag_s_rnt_term'] = np.where((data_msq['rnt_term'] == 'N') & (data_msq['s_rnt_term'] == 'G') & (data_msq['avg_s_opex'] / data_msq['s_avrent'] > 0.4), 0, data_msq['r_flag_s_rnt_term'])
+    
     # Join the ids that are in the error list due to commas in one of the columns to the dataframe and remove their flag tags
     df_list = []
     has_error = False
