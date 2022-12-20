@@ -4,7 +4,7 @@ from datetime import datetime
 pd.set_option('display.max_rows',  1000)
 pd.set_option('display.max_columns', 100)
 pd.options.display.float_format = '{:.2f}'.format
-from IPython.core.display import display, HTML
+from IPython.display import display, HTML
 
 def outlier_r_level_flags(sector_val, curryr, currmon, msq_data_in, past_msq_data_in):
 
