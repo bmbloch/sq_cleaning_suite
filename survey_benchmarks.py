@@ -72,9 +72,6 @@ def process_survey_benchmarks(sector_val, curryr, currmon):
     data = data[(data['subid'] != 77) | (data['metcode'].isin(rent_comps_only_list))]
     data = data[data['submkt'].str.strip().str[0:2] != '99']
 
-    data['avg_op_exp'] = data.groupby('id')['op_exp'].transform('mean')
-    data['rnt_term'] = np.where((data['avg_op_exp'] / data['renx'] > 0.4) & (data['rnt_term'].isnull() == False), 'N', data['rnt_term'])
-    
     data['curr_tag'] = np.where((data['reisyr'] == curryr) & (data['reismon'] == currmon), 1, 0)
 
     data['reisqtr'] = np.ceil(data['reismon'] / 3)
@@ -127,12 +124,34 @@ def process_survey_benchmarks(sector_val, curryr, currmon):
 
     data['d_ind_avail'] = np.where(data['l_avail_sub'].isnull() == False, data['avail_sub'] - data['l_avail_sub'], np.nan)
 
+    temp = data.copy()
+    temp = temp[(temp['renx'].isnull() == False) & (temp['curr_tag'] == 0)]
+    temp['l_renx'] = temp.groupby('id').tail(1)['renx']
+    temp['l_survdate'] = temp.groupby('id').tail(1)['survdate']
+    temp = temp[temp['l_renx'].isnull() == False]
+    temp = temp.set_index('id')
+    temp = temp[['l_renx', 'l_survdate']]
+    data = data.join(temp, on='id')
+    
+    data['avg_op_exp'] = data.groupby('id')['op_exp'].transform('mean')
+    data['rnt_term'] = np.where((data['rnt_term'] == 'G') & (data['op_exp'] / data['renx'] > 0.65), 'N', data['rnt_term'])
+    data['rnt_term'] = np.where((data['avg_op_exp'] / data['renx'] > 0.4) & (data['rnt_term'].isnull() == False), 'N', data['rnt_term'])
+    data['rnt_term']= np.where((data['rnt_term'] == 'G') & (data['renx'] < data['l_renx'] * 0.7) & (data['l_renx'].isnull() == False) & (data['renx'].isnull() == False), 'N', data['rnt_term'])
+
     data['count_term'] = data.groupby('id')['rnt_term'].transform('count')
     data['term_temp'] = data.groupby('id')['rnt_term'].bfill()
     data['term_est'] = np.where((data['id'] != data['id'].shift(1)) & (data['rnt_term'].isnull() == True), "N", data['rnt_term'])
     data['term_est'] = np.where((data['count_term'] == 1) & (data['surv_num'] > 0) & (data['id'] != data['id'].shift(1)), data['term_temp'], data['term_est'])
     data['term_est'] = data.groupby('id')['term_est'].ffill()
     data['term_est'] = data.groupby('id')['term_est'].bfill()
+
+    temp = data.copy()
+    temp = temp[(temp['renx'].isnull() == False) & (temp['curr_tag'] == 0)]
+    temp['l_rnt_term'] = temp.groupby('id').tail(1)['term_est']
+    temp = temp[temp['l_rnt_term'].isnull() == False]
+    temp = temp.set_index('id')
+    temp = temp[['l_rnt_term']]
+    data = data.join(temp, on='id')
 
     temp = data.copy()
     temp = temp[temp['rnt_term'].isnull() == False]
@@ -146,16 +165,6 @@ def process_survey_benchmarks(sector_val, curryr, currmon):
 
     data['uniq1'] = data['metcode'] + data['subid'].astype(int).astype(str) + data['type2']
     data['uniq2'] = data['metcode'] + data['type2']
-
-    temp = data.copy()
-    temp = temp[(temp['renx'].isnull() == False) & (temp['curr_tag'] == 0)]
-    temp['l_renx'] = temp.groupby('id').tail(1)['renx']
-    temp['l_survdate'] = temp.groupby('id').tail(1)['survdate']
-    temp['l_rnt_term'] = temp.groupby('id').tail(1)['term_est']
-    temp = temp[temp['l_renx'].isnull() == False]
-    temp = temp.set_index('id')
-    temp = temp[['l_renx', 'l_survdate', 'l_rnt_term']]
-    data = data.join(temp, on='id')
 
     start = datetime(curryr, currmon, 1)
     data['diff_mon'] = (start.year - data['survdate'].dt.year) * 12 + (start.month - data['survdate'].dt.month)
