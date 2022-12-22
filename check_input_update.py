@@ -40,8 +40,6 @@ def check_input_freshness(sector_val, curryr, currmon, program):
         if isFile == True: 
             logs_modified = os.path.getmtime('/home/central/square/data/zzz-bb-test2/python/sq_redev/{}/{}m{}/OutputFiles/aggreg_logs.pickle'.format(sector_val, curryr, currmon))
             m_year_logs, m_month_logs, m_day_logs, m_hour_logs, m_min_logs = time.localtime(logs_modified)[:-4]
-            if m_hour_logs > 12:
-                m_hour_logs = m_hour_logs - 12
         else:
             file_status = "logs"
 
@@ -50,8 +48,6 @@ def check_input_freshness(sector_val, curryr, currmon, program):
             if isFile == True:
                 bench_modified = os.path.getmtime('/home/central/square/data/zzz-bb-test2/python/sq_redev/{}/{}m{}/OutputFiles/metro_avgs.pickle'.format(sector_val, curryr, currmon))
                 m_year_bench, m_month_bench, m_day_bench, m_hour_bench, m_min_bench = time.localtime(bench_modified)[:-4]
-                if m_hour_bench > 12:
-                    m_hour_bench = m_hour_bench - 12
                 if (m_year_logs > m_year_bench) or (m_year_logs == m_year_bench and m_month_logs > m_month_bench) or (m_year_logs == m_year_bench and m_month_logs == m_month_bench and m_day_logs > m_day_bench) or (m_year_logs == m_year_bench and m_month_logs == m_month_bench and m_day_logs == m_day_bench and m_hour_logs > m_hour_bench) or (m_year_logs == m_year_bench and m_month_logs == m_month_bench and m_day_logs == m_day_bench and m_hour_logs == m_hour_bench and m_min_logs > m_min_bench):
                     file_status = "bench"
             else:
