@@ -133,10 +133,13 @@ def process_survey_benchmarks(sector_val, curryr, currmon):
     temp = temp[['l_renx', 'l_survdate']]
     data = data.join(temp, on='id')
     
+    data['l_renx_fill'] = np.where((data['id'] == data['id'].shift(-1)), data['renx'].shift(1), np.nan)
+    data['l_renx_fill'] = data.groupby('id')['l_renx_fill'].ffill()
+    
     data['avg_op_exp'] = data.groupby('id')['op_exp'].transform('mean')
     data['rnt_term'] = np.where((data['rnt_term'] == 'G') & (data['op_exp'] / data['renx'] > 0.65), 'N', data['rnt_term'])
     data['rnt_term'] = np.where((data['avg_op_exp'] / data['renx'] > 0.4) & (data['rnt_term'].isnull() == False), 'N', data['rnt_term'])
-    data['rnt_term']= np.where((data['rnt_term'] == 'G') & (data['renx'] < data['l_renx'] * 0.7) & (data['l_renx'].isnull() == False) & (data['renx'].isnull() == False), 'N', data['rnt_term'])
+    data['rnt_term']= np.where((data['rnt_term'] == 'G') & (data['renx'] < data['l_renx_fill'] * 0.7) & (data['l_renx_fill'].isnull() == False) & (data['renx'].isnull() == False), 'N', data['rnt_term'])
 
     data['count_term'] = data.groupby('id')['rnt_term'].transform('count')
     data['term_temp'] = data.groupby('id')['rnt_term'].bfill()
