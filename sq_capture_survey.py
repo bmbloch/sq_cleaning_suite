@@ -46,6 +46,10 @@ def sq_capture_survey_flags(sector_val, curryr, currmon, msq_data_in):
         
     data_filt = data_filt.replace('', np.nan)
 
+    data_filt.sort_values(by=['realid', 'reisyr', 'reismon', 'survday'], ascending=[True, True, True, True], inplace=True)
+    data_filt['l_s_avrent'] = np.where((data_filt['realid'] == data_filt['realid'].shift(-1)), data_filt['s_avrent'].shift(1), np.nan)
+    data_filt['l_s_avrent'] = data_filt.groupby('realid')['l_s_avrent'].ffill()
+
     data_filt.sort_values(by=['realid', 'reisyr', 'reismon', 'survday', 's_avail', 's_sublet'], ascending=[True, False, False, False, False, False] , inplace=True)
 
     # Identify cases where there were 2 surveys in a month so that we can unflag these cases if squaring has chosen one of the values
@@ -176,7 +180,8 @@ def sq_capture_survey_flags(sector_val, curryr, currmon, msq_data_in):
     data_msq['r_flag_s_rnt_term'] = np.where((data_msq['r_flag_s_rnt_term'] == 1) & (data_msq['rnt_term'].isnull() == False) & (data_msq['same_mon_rnt_term_tag_first'].isnull() == False) & ((data_msq['same_mon_rnt_term_tag_first'] == data_msq['rnt_term']) | (data_msq['same_mon_rnt_term_tag_second'] == data_msq['rnt_term'])), 0, data_msq['r_flag_s_rnt_term'])
     data_msq['r_flag_s_rnt_term'] = np.where((data_msq['rnt_term'] == 'N') & (data_msq['s_rnt_term'] == 'G') & (data_msq['s_opex'] / data_msq['s_avrent'] > 0.65), 0, data_msq['r_flag_s_rnt_term'])
     data_msq['r_flag_s_rnt_term'] = np.where((data_msq['rnt_term'] == 'N') & (data_msq['s_rnt_term'] == 'G') & (data_msq['avg_s_opex'] / data_msq['s_avrent'] > 0.4), 0, data_msq['r_flag_s_rnt_term'])
-    
+    data_msq['r_flag_s_rnt_term']= np.where((data_msq['rnt_term'] == 'N') & (data_msq['s_rnt_term'] == 'G') & (data_msq['s_avrent'] < data_msq['l_s_avrent'] * 0.7) & (data_msq['l_s_avrent'].isnull() == False) & (data_msq['s_avrent'].isnull() == False), 0, data_msq['r_flag_s_rnt_term'])
+
     # Join the ids that are in the error list due to commas in one of the columns to the dataframe and remove their flag tags
     df_list = []
     has_error = False
